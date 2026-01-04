@@ -33,6 +33,13 @@
 
 #define MAX_LINE 256
 
+struct map_info {
+    uint64_t start;
+    uint64_t size;
+    uint64_t offset;
+    char pathname[256];
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -74,11 +81,6 @@ static const char* crc_solist[] = {
         "libart.so", "libc.so", "libcheck_env.so", NULL
 };
 
-struct map_info {
-    uint64_t start;
-    uint64_t size;
-    uint64_t offset;
-    char pathname[256];
-};
+
 
 #endif

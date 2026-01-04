@@ -33,17 +33,28 @@ android {
 
     signingConfigs {
         create("release") {
-            if (keystorePropertiesFile.exists() && keystoreProperties.containsKey("storeFile")) {
+            val keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+            val keystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            val keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+            val keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+
+            if (!keystorePath.isNullOrEmpty() && !keystorePassword.isNullOrEmpty()) {
+                storeFile = file(keystorePath)
+                storePassword = keystorePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            } else if (keystorePropertiesFile.exists() && keystoreProperties.containsKey("storeFile")) {
                 storeFile = file(keystoreProperties["storeFile"].toString())
                 storePassword = keystoreProperties["storePassword"].toString()
-                keyAlias = keystoreProperties["keyAlias"].toString()
-                keyPassword = keystoreProperties["keyPassword"].toString()
+                this.keyAlias = keystoreProperties["keyAlias"].toString()
+                this.keyPassword = keystoreProperties["keyPassword"].toString()
             } else {
-                // Use debug keystore for CI builds
+                // FALLBACK for local development without keys (debug key)
+                // Note: CI release builds will fail if secrets aren't set, which is intended.
                 storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
                 storePassword = "android"
-                keyAlias = "androiddebugkey"
-                keyPassword = "android"
+                this.keyAlias = "androiddebugkey"
+                this.keyPassword = "android"
             }
         }
     }
