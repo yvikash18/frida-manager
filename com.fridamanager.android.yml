@@ -1,0 +1,22 @@
+Categories:
+  - Security
+  - System
+License: MIT
+SourceCode: https://github.com/yvikash18/frida-manager
+run_command
+RepoType: git
+Repo: https://github.com/yvikash18/frida-manager
+
+Builds:
+  - versionName: '1.2'
+    versionCode: 3
+    commit: v1.2
+    # Where build.gradle is:
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '1.2'
+CurrentVersionCode: 3

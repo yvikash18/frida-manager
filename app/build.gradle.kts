@@ -9,7 +9,10 @@ import java.util.Properties
 android {
     namespace = "com.fridamanager.android"
     compileSdk = 36
-
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
     // Load keystore properties
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties()
