@@ -441,9 +441,9 @@ class FridaInstallerViewModel(private val context: Context) : ViewModel() {
     
     fun toggleWifiAdb(enable: Boolean) {
         val command = if (enable) {
-            "setprop service.adb.tcp.port 5555 && stop adbd && start adbd"
+            "setprop service.adb.tcp.port 5555; stop adbd; start adbd"
         } else {
-            "setprop service.adb.tcp.port -1 && stop adbd && start adbd"
+            "setprop service.adb.tcp.port -1; stop adbd; start adbd"
         }
         
         fridaInstaller.executeSuCommand(command)
