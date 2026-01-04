@@ -43,11 +43,11 @@ jobs:
 
       - name: Decode release keystore
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > $HOME/release-key.jks
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > release-key.jks
 
       - name: Build Release APK (signed)
         env:
-          ANDROID_KEYSTORE_PATH: $HOME/release-key.jks
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/release-key.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
