@@ -1,0 +1,66 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Server rack symbol -->
+    <group android:translateX="54" android:translateY="54">
+        <!-- Main server rack -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M-18,-24 L18,-24 Q20,-24 20,-22 L20,22 Q20,24 18,24 L-18,24 Q-20,24 -20,22 L-20,-22 Q-20,-24 -18,-24 Z"
+            android:strokeColor="#E8F4F8"
+            android:strokeWidth="1" />
+            
+        <!-- Server slots -->
+        <path
+            android:fillColor="#64B5F6"
+            android:pathData="M-16,-20 L16,-20 L16,-14 L-16,-14 Z" />
+        <path
+            android:fillColor="#42A5F5"
+            android:pathData="M-16,-12 L16,-12 L16,-6 L-16,-6 Z" />
+        <path
+            android:fillColor="#2196F3"
+            android:pathData="M-16,-4 L16,-4 L16,2 L-16,2 Z" />
+        <path
+            android:fillColor="#1976D2"
+            android:pathData="M-16,4 L16,4 L16,10 L-16,10 Z" />
+        <path
+            android:fillColor="#0D47A1"
+            android:pathData="M-16,12 L16,12 L16,18 L-16,18 Z" />
+            
+        <!-- Power indicators (small circles) -->
+        <path android:fillColor="#4CAF50" android:pathData="M12,-17 m-1,0 a1,1 0,1,1 2,0 a1,1 0,1,1 -2,0" />
+        <path android:fillColor="#4CAF50" android:pathData="M12,-9 m-1,0 a1,1 0,1,1 2,0 a1,1 0,1,1 -2,0" />
+        <path android:fillColor="#4CAF50" android:pathData="M12,-1 m-1,0 a1,1 0,1,1 2,0 a1,1 0,1,1 -2,0" />
+        <path android:fillColor="#4CAF50" android:pathData="M12,7 m-1,0 a1,1 0,1,1 2,0 a1,1 0,1,1 -2,0" />
+        <path android:fillColor="#4CAF50" android:pathData="M12,15 m-1,0 a1,1 0,1,1 2,0 a1,1 0,1,1 -2,0" />
+        
+        <!-- Injection syringe symbol -->
+        <group android:translateX="22" android:translateY="-22" android:rotation="45">
+            <!-- Syringe body -->
+            <path
+                android:fillColor="#FF5722"
+                android:pathData="M-1,-8 L1,-8 L1,6 L-1,6 Z" />
+            <!-- Needle -->
+            <path
+                android:fillColor="#FFB74D"
+                android:pathData="M-0.5,6 L0.5,6 L0.5,12 L-0.5,12 Z" />
+            <!-- Plunger -->
+            <path
+                android:fillColor="#FF8A65"
+                android:pathData="M-2,-10 L2,-10 L2,-8 L-2,-8 Z" />
+        </group>
+        
+        <!-- Connection lines (data flow) -->
+        <path
+            android:strokeColor="#FFD54F"
+            android:strokeWidth="1.5"
+            android:pathData="M16,-17 Q22,-17 22,-22" />
+        <path
+            android:strokeColor="#FFD54F" 
+            android:strokeWidth="1.5"
+            android:pathData="M16,-9 Q20,-9 20,-15" />
+    </group>
+</vector>

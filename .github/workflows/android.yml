@@ -1,0 +1,107 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Write your real release keystore from GitHub Secrets
+      - name: Decode release keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > $HOME/release-key.jks
+          ls -lah $HOME/release-key.jks
+
+      # Build signed RELEASE apk (Gradle must read these env vars in signingConfigs)
+      - name: Build Release APK (signed)
+        env:
+          ANDROID_KEYSTORE_PATH: $HOME/release-key.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew clean assembleRelease
+
+      # Grab version from tag (only tag builds)
+      - name: Get version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      # Rename APK for tags (nice filename in release)
+      - name: Rename Release APK (tag builds)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          APK_DIR="app/build/outputs/apk/release"
+          DEFAULT_APK="$APK_DIR/app-release.apk"
+          OUT_APK="$APK_DIR/frida-manager-${{ steps.get_version.outputs.VERSION }}.apk"
+
+          if [ -f "$DEFAULT_APK" ]; then
+            mv "$DEFAULT_APK" "$OUT_APK"
+          else
+            # Fallback if your module/apk name differs
+            FOUND_APK=$(ls -1 $APK_DIR/*.apk | head -n 1)
+            mv "$FOUND_APK" "$OUT_APK"
+          fi
+
+      # Upload artifact for non-tag builds (branches/PRs)
+      - name: Upload Release APK artifact (branches/PR)
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        uses: actions/upload-artifact@v4
+        with:
+          name: frida-manager-release
+          path: app/build/outputs/apk/release/*.apk
+
+      # Create GitHub Release for tags
+      - name: Create GitHub Release (tags)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "app/build/outputs/apk/release/frida-manager-${{ steps.get_version.outputs.VERSION }}.apk"
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          makeLatest: true
+          name: Frida Manager ${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## Frida Manager ${{ steps.get_version.outputs.VERSION }}
+
+            ### 📥 Downloads
+            Download the APK below.
+
+            ### ✨ Features
+            - Frida server management
+            - RASP detection module (native)
+            - Version switching and saving
+            - Dark & Light theme support
+
+            ### 📱 Installation
+            1. Download `frida-manager-${{ steps.get_version.outputs.VERSION }}.apk`
+            2. Install on your rooted device
+            3. Grant superuser permissions

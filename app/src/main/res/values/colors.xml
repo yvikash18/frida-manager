@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Frida Manager Dark Theme -->
+    <color name="midnight_void">#FF080B16</color>
+    <color name="electric_violet">#FF8B5CF6</color>
+    <color name="cyber_cyan">#FF3B82F6</color>
+    <color name="shield_grey">#FF1F2937</color>
+    <color name="text_white">#FFFFFFFF</color>
+    <color name="muted_slate">#FF94A3B8</color>
+    
+    <!-- Splash Background -->
+    <color name="splash_background">#FF080B16</color>
+    <color name="light_background">#FFF5F5F5</color>
+    
+    <!-- Status colors -->
+    <color name="success_green">#FF10B981</color>
+    <color name="warning_amber">#FFF59E0B</color>
+    <color name="error_red">#FFEF4444</color>
+    
+    <!-- Legacy -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

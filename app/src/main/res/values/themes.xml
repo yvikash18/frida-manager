@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Theme (default) -->
+    <style name="Theme.FridaServerInstaller" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/light_background</item>
+        <item name="android:statusBarColor">@color/light_background</item>
+        <item name="android:navigationBarColor">@color/light_background</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+    
+    <!-- Light Theme -->
+    <style name="Theme.FridaServerInstaller.Light" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/light_background</item>
+        <item name="android:statusBarColor">@color/light_background</item>
+        <item name="android:navigationBarColor">@color/light_background</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
