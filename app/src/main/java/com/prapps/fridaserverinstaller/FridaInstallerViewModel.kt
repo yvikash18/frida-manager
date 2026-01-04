@@ -33,7 +33,9 @@ data class InstallUiState(
     val savedVersions: List<String> = emptyList(),
     val isWifiAdbEnabled: Boolean = false,
     val wifiAdbAddress: String? = null,
-    val isRooted: Boolean = false
+
+    val isRooted: Boolean = false,
+    val raspResults: com.prapps.fridaserverinstaller.rasp.DetectionSummary? = null
 )
 
 class FridaInstallerViewModel(private val context: Context) : ViewModel() {
@@ -47,7 +49,26 @@ class FridaInstallerViewModel(private val context: Context) : ViewModel() {
         checkRootStatus()
         checkExistingInstallation()
         checkWifiAdbStatus()
+        checkWifiAdbStatus()
         loadPreferences()
+        runRaspScan()
+    }
+    
+    fun runRaspScan() {
+        // Run in background properly, but for now just direct call if simple
+        // Ideally inside viewModelScope.launch(Dispatchers.IO)
+        // Assuming Detector is lightweight enough or already threaded?
+        // Actually native scans can block. Let's assume we need a thread/coroutine.
+        // Since I don't see coroutines setup fully here (it's StateFlow), I'll check imports.
+        // It has `kotlinx.coroutines.flow`. 
+        // I'll add a simple thread for now or look if `viewModelScope` is available.
+        // `androidx.lifecycle.ViewModel` usually has it.
+        // But imports are minimal. I'll just use a Thread for safety to not block UI.
+        Thread {
+            val raspDetector = com.prapps.fridaserverinstaller.rasp.RaspDetector()
+            val results = raspDetector.runFullScan()
+            _uiState.value = _uiState.value.copy(raspResults = results)
+        }.start()
     }
     
     private fun loadPreferences() {

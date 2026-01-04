@@ -29,6 +29,23 @@ class RaspDetector {
     private external fun nativeCheckThreads(): Array<String>
     private external fun nativeCheckDbus(port: Int): Boolean
     private external fun nativeCheckEnvironment(): Array<String>
+    private external fun nativeCheckEnvironmentAbnormal(): String
+    
+    fun checkEnvironmentAbnormal(): DetectionResult {
+        return try {
+            val result = nativeCheckEnvironmentAbnormal()
+            val detected = result.contains("detect", ignoreCase = true)
+            DetectionResult(
+                technique = "Advanced Environment Check",
+                detected = detected,
+                details = if (detected) "Abnormalities found" else "Clean",
+                severity = if (detected) Severity.CRITICAL else Severity.LOW,
+                rawData = result.lines()
+            )
+        } catch (e: Exception) {
+            DetectionResult("Advanced Environment Check", false, "Error", Severity.LOW)
+        }
+    }
     
     fun runFullScan(): DetectionSummary {
         val startTime = System.currentTimeMillis()
@@ -60,6 +77,9 @@ class RaspDetector {
         
         // 9. Process name check
         results.add(checkFridaProcesses())
+
+        // 10. Advanced Environment Check (New)
+        results.add(checkEnvironmentAbnormal())
         
         val scanTime = System.currentTimeMillis() - startTime
         val detections = results.filter { it.detected }
@@ -223,5 +243,7 @@ class RaspDetector {
             severity = if (found.isNotEmpty()) Severity.CRITICAL else Severity.LOW,
             rawData = found
         )
+
     }
 }
+

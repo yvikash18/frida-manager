@@ -10,9 +10,39 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.animation.animateContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.filled.WifiOff
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import com.prapps.fridaserverinstaller.rasp.DetectionResult
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +54,8 @@ import androidx.compose.ui.unit.sp
 import com.prapps.fridaserverinstaller.FridaInstaller
 import com.prapps.fridaserverinstaller.FridaInstallerViewModel
 import com.prapps.fridaserverinstaller.InstallStatus
+import com.prapps.fridaserverinstaller.ui.theme.SuccessGreen
+import com.prapps.fridaserverinstaller.ui.theme.TextWhite
 import com.prapps.fridaserverinstaller.ui.theme.*
 
 @Composable
@@ -128,6 +160,8 @@ fun HomeScreen(
             address = uiState.wifiAdbAddress,
             onToggle = { enable -> viewModel.toggleWifiAdb(enable) }
         )
+        
+
         
         // Main Action Area
         when (uiState.status) {
@@ -730,6 +764,6 @@ fun WifiAdbCard(
             }
         }
     }
-
-
 }
+
+

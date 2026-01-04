@@ -1,5 +1,8 @@
 package com.prapps.fridaserverinstaller.ui
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -135,7 +139,7 @@ fun DetectionScreen() {
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 items(result.results) { detection ->
-                    SimpleDetectionCard(detection)
+                    ExpandableDetectionCard(detection)
                 }
             }
         }
@@ -143,58 +147,78 @@ fun DetectionScreen() {
 }
 
 @Composable
-fun SimpleDetectionCard(result: DetectionResult) {
+fun ExpandableDetectionCard(detection: DetectionResult) {
+    var expanded by remember { mutableStateOf(false) }
+    
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .animateContentSize()
+            .clickable { expanded = !expanded },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(
+            1.dp, 
+            if (detection.detected) MaterialTheme.colorScheme.error else Color(0xFF10B981).copy(alpha = 0.5f)
         )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(12.dp)
         ) {
-            // Status Icon
-            Icon(
-                imageVector = if (result.detected) Icons.Default.Warning else Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = if (result.detected) ErrorRed else SuccessGreen,
-                modifier = Modifier.size(20.dp)
-            )
-            
-            Spacer(modifier = Modifier.width(12.dp))
-            
-            // Technique name
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = result.technique,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurface
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = if (detection.detected) Icons.Default.Warning else Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = if (detection.detected) MaterialTheme.colorScheme.error else Color(0xFF10B981),
+                    modifier = Modifier.size(20.dp)
                 )
-                if (result.detected && result.rawData.isNotEmpty()) {
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "${result.rawData.size} items found",
-                        fontSize = 11.sp,
+                        text = detection.technique,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = detection.details,
+                        fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                if (detection.rawData.isNotEmpty()) {
+                    Icon(
+                        imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                        contentDescription = if (expanded) "Collapse" else "Expand",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
             
-            // Status badge
-            Surface(
-                color = if (result.detected) ErrorRed else SuccessGreen,
-                shape = MaterialTheme.shapes.small
-            ) {
-                Text(
-                    text = if (result.detected) result.severity.name else "OK",
-                    color = TextWhite,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                )
+            if (expanded && detection.rawData.isNotEmpty()) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.surfaceVariant)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp)
+                ) {
+                    detection.rawData.forEach { line ->
+                        if(line.isNotBlank()) {
+                            Text(
+                                text = line,
+                                fontSize = 11.sp,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
             }
         }
     }
