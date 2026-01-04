@@ -3,7 +3,6 @@ Categories:
   - System
 License: MIT
 SourceCode: https://github.com/yvikash18/frida-manager
-run_command
 RepoType: git
 Repo: https://github.com/yvikash18/frida-manager
 
@@ -15,6 +14,9 @@ Builds:
     subdir: app
     gradle:
       - yes
+    scandelete:
+      - gradle/wrapper
+    prebuild: sed -i -e '/signingConfig/d' build.gradle.kts
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
