@@ -1,12 +1,41 @@
-Frida Manager is a powerful tool for Android security researchers and modders. It simplifies the installation and management of Frida server binaries on rooted devices and includes a native RASP (Runtime Application Self-Protection) detection module to verify environment integrity.
+Frida Manager is a cutting-edge Android application designed for security researchers, pentesters, and modders. It streamlines the deployment of Frida server binaries and provides a robust RASP (Runtime Application Self-Protection) Detection suite to analyze how apps detect your environment.
 
-Features:
-*   **Server Management**: Automatically download and install the latest Frida server binaries from GitHub.
-*   **Version Control**: Save and switch between multiple Frida versions effortlessly.
-*   **RASP Detection**: Detect common anti-Frida techniques including anonymous executable memory scanning, suspicious thread names, and file descriptor checks.
-*   **Wireless ADB**: Toggle Wireless ADB debugging with a single tap.
-*   **Modern UI**: Built with Jetpack Compose featuring comprehensive logs and a dark theme.
+With a beautiful Material Design 3 interface, it offers powerful tools like Wireless ADB Debugging, real-time logging, and one-click environment scans.
 
-Requirements:
-*   Rooted Android device (Android 8.0+)
-*   Active internet connection for downloading binaries
+Key Features:
+
+🚀 Advanced Server Management
+*   Smart Installation: Auto-fetch and install the latest Frida binaries from GitHub.
+*   Version Control: Save multiple Frida versions and switch between them instantly.
+*   Auto-Heal: Automatically detects architecture and installs the correct binary.
+*   Boot Persistence: Configure Frida server to start automatically on device boot.
+
+🛡️ RASP & Environment Analysis
+Detect if your environment is exposed to anti-tampering checks. Our native detection module scans for:
+*   Maps & Smaps Scanning: Detects Frida libraries and anonymous executable memory.
+*   Thread Analysis: Identifies suspicious threads (gmain, gum-js-loop, pool-frida).
+*   File Descriptor Checks: Finds open handles to sensitive files.
+*   Port Scanning: Detects default Frida ports (27042).
+*   Native Hooks: Probes for hooked system libraries.
+
+⚡ Power Tools
+*   Wifi ADB Debugging: Toggle Wireless ADB with a single tap for cable-free research.
+*   Logcat Integration: Built-in terminal to view and filter server logs in real-time.
+*   Root Detection: Verifies root access integrity.
+
+🎨 Modern Experience
+*   Jetpack Compose UI: Smooth, reactive, and beautiful interface.
+*   Dark Mode: Fully supported system-wide dark theme.
+*   Dynamic Stats: Real-time server PID and version display.
+
+Architecture Support:
+*   ARM64: Modern Android Phones (Pixel, Samsung, etc.)
+*   ARM: Older/Budget Devices
+*   x86 / x86_64: Emulators (AVD, Genymotion)
+
+Permissions:
+The app requires specific permissions to function correctly:
+*   ROOT: Essential for installing server binaries to /data/local/tmp and managing system services.
+*   INTERNET: To fetch the latest releases from GitHub.
+*   RECEIVE_BOOT_COMPLETED: For the auto-start feature.
+*   POST_NOTIFICATIONS: To show server status in the notification shade.
