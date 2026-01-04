@@ -1,6 +1,4 @@
 <div align="center">
-  <img src="Screenshot/1.png" alt="Frida Manager Banner" width="100%" style="border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2);" />
-
   <h1 align="center">Frida Manager</h1>
 
   <p align="center">
