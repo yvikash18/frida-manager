@@ -1,0 +1,12 @@
+Frida Manager is a powerful tool for Android security researchers and modders. It simplifies the installation and management of Frida server binaries on rooted devices and includes a native RASP (Runtime Application Self-Protection) detection module to verify environment integrity.
+
+Features:
+*   **Server Management**: Automatically download and install the latest Frida server binaries from GitHub.
+*   **Version Control**: Save and switch between multiple Frida versions effortlessly.
+*   **RASP Detection**: Detect common anti-Frida techniques including anonymous executable memory scanning, suspicious thread names, and file descriptor checks.
+*   **Wireless ADB**: Toggle Wireless ADB debugging with a single tap.
+*   **Modern UI**: Built with Jetpack Compose featuring comprehensive logs and a dark theme.
+
+Requirements:
+*   Rooted Android device (Android 8.0+)
+*   Active internet connection for downloading binaries
