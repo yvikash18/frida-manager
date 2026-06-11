@@ -36,6 +36,7 @@ data class InstallUiState(
     val savedVersions: List<String> = emptyList(),
     val isWifiAdbEnabled: Boolean = false,
     val wifiAdbAddress: String? = null,
+    val isWifiAdbOnBootEnabled: Boolean = false,
 
     val isRooted: Boolean = false
 )
@@ -59,7 +60,8 @@ class FridaInstallerViewModel(private val context: Context) : ViewModel() {
             serverPort = preferencesManager.serverPort,
             isAutoStartEnabled = preferencesManager.isAutoStartEnabled,
             isDarkTheme = preferencesManager.isDarkTheme,
-            savedVersions = preferencesManager.getSavedVersions().toList()
+            savedVersions = preferencesManager.getSavedVersions().toList(),
+            isWifiAdbOnBootEnabled = preferencesManager.isWifiAdbOnBootEnabled
         )
     }
     
@@ -81,12 +83,32 @@ class FridaInstallerViewModel(private val context: Context) : ViewModel() {
     }
     
     fun startInstallation() {
-        if (fridaInstaller.isServerAlreadyInstalled()) {
-            _uiState.value = _uiState.value.copy(showRedownloadDialog = true)
-            return
-        }
-        
-        _uiState.value = _uiState.value.copy(showInstallTypeDialog = true)
+        _uiState.value = _uiState.value.copy(
+            status = InstallStatus.INSTALLING,
+            messages = listOf("🔐 Verifying root access...")
+        )
+        Thread {
+            if (!fridaInstaller.isRooted()) {
+                _uiState.value = _uiState.value.copy(
+                    status = InstallStatus.ERROR,
+                    messages = listOf("❌ Root access required but not available or was denied.")
+                )
+                return@Thread
+            }
+            if (fridaInstaller.isServerAlreadyInstalled()) {
+                _uiState.value = _uiState.value.copy(
+                    status = InstallStatus.IDLE,
+                    messages = emptyList(),
+                    showRedownloadDialog = true
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    status = InstallStatus.IDLE,
+                    messages = emptyList(),
+                    showInstallTypeDialog = true
+                )
+            }
+        }.start()
     }
     
     fun setServerPort(port: Int) {
@@ -102,6 +124,11 @@ class FridaInstallerViewModel(private val context: Context) : ViewModel() {
     fun setDarkTheme(enabled: Boolean) {
         preferencesManager.isDarkTheme = enabled
         _uiState.value = _uiState.value.copy(isDarkTheme = enabled)
+    }
+
+    fun setWifiAdbOnBootEnabled(enabled: Boolean) {
+        preferencesManager.isWifiAdbOnBootEnabled = enabled
+        _uiState.value = _uiState.value.copy(isWifiAdbOnBootEnabled = enabled)
     }
     
     fun switchToSavedVersion(versionTag: String) {

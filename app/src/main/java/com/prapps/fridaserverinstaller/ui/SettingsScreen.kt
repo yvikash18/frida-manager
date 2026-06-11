@@ -21,11 +21,13 @@ import com.prapps.fridaserverinstaller.ui.theme.*
 fun SettingsScreen(
     serverPort: Int,
     isAutoStartEnabled: Boolean,
+    isWifiAdbOnBootEnabled: Boolean,
     isDarkTheme: Boolean,
     savedVersions: List<String>,
     currentVersion: String?,
     onPortChange: (Int) -> Unit,
     onAutoStartChange: (Boolean) -> Unit,
+    onWifiAdbOnBootChange: (Boolean) -> Unit,
     onDarkThemeChange: (Boolean) -> Unit,
     onSwitchVersion: (String) -> Unit,
     onDeleteVersion: (String) -> Unit
@@ -180,6 +182,38 @@ fun SettingsScreen(
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = TextWhite,
                         checkedTrackColor = ElectricViolet,
+                        uncheckedThumbColor = MutedSlate,
+                        uncheckedTrackColor = ShieldGrey
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // WiFi ADB on boot
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "WiFi ADB on Boot",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Enable wireless ADB (port 5555) automatically on boot",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = isWifiAdbOnBootEnabled,
+                    onCheckedChange = onWifiAdbOnBootChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = TextWhite,
+                        checkedTrackColor = CyberCyan,
                         uncheckedThumbColor = MutedSlate,
                         uncheckedTrackColor = ShieldGrey
                     )

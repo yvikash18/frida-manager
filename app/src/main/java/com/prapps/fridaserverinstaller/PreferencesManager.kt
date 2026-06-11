@@ -18,6 +18,10 @@ class PreferencesManager(context: Context) {
     var isDarkTheme: Boolean
         get() = prefs.getBoolean(KEY_DARK_THEME, true)
         set(value) = prefs.edit { putBoolean(KEY_DARK_THEME, value) }
+
+    var isWifiAdbOnBootEnabled: Boolean
+        get() = prefs.getBoolean(KEY_WIFI_ADB_ON_BOOT, false)
+        set(value) = prefs.edit { putBoolean(KEY_WIFI_ADB_ON_BOOT, value) }
     
     // Saved versions
     fun getSavedVersions(): Set<String> {
@@ -42,6 +46,7 @@ class PreferencesManager(context: Context) {
         private const val KEY_SERVER_PORT = "server_port"
         private const val KEY_DARK_THEME = "dark_theme"
         private const val KEY_SAVED_VERSIONS = "saved_versions"
+        private const val KEY_WIFI_ADB_ON_BOOT = "wifi_adb_on_boot"
         const val DEFAULT_PORT = 27042
     }
 }

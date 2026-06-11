@@ -98,11 +98,13 @@ fun MainApp(
                 SettingsScreen(
                     serverPort = uiState.serverPort,
                     isAutoStartEnabled = uiState.isAutoStartEnabled,
+                    isWifiAdbOnBootEnabled = uiState.isWifiAdbOnBootEnabled,
                     isDarkTheme = uiState.isDarkTheme,
                     savedVersions = uiState.savedVersions,
                     currentVersion = uiState.currentServerType,
                     onPortChange = { port -> viewModel.setServerPort(port) },
                     onAutoStartChange = { enabled -> viewModel.setAutoStartEnabled(enabled) },
+                    onWifiAdbOnBootChange = { enabled -> viewModel.setWifiAdbOnBootEnabled(enabled) },
                     onDarkThemeChange = { enabled ->
                         viewModel.setDarkTheme(enabled)
                         onThemeChange(enabled)

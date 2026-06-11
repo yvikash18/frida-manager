@@ -336,20 +336,32 @@ class FridaInstaller(private val context: Context) {
                 callback.onProgress("📁 Processing: ${sourceFile.name} (${formatFileSize(sourceFile.length())})")
                 
                 val fridaDir = getFridaInternalDir()
-                val isXzFile = sourceFile.name.lowercase().endsWith(".xz")
-                
-                val targetFile = if (isXzFile) {
-                    callback.onProgress("📦 Processing compressed file (.xz)...")
-                    val tempFile = File(fridaDir, "temp-server.xz")
-                    sourceFile.copyTo(tempFile, overwrite = true)
-                    callback.onProgress("📦 Extracting server binary...")
-                    extractXzFile(tempFile).also { tempFile.delete() }
-                } else {
-                    callback.onProgress("📁 Processing raw binary file...")
-                    val target = File(fridaDir, "frida-server")
-                    target.delete()
-                    sourceFile.copyTo(target, overwrite = true)
-                    target
+                val nameLower = sourceFile.name.lowercase()
+                val isXzFile = nameLower.endsWith(".xz")
+                val isGzFile = nameLower.endsWith(".gz")
+
+                val targetFile = when {
+                    isXzFile -> {
+                        callback.onProgress("📦 Processing compressed file (.xz)...")
+                        val tempFile = File(fridaDir, "temp-server.xz")
+                        sourceFile.copyTo(tempFile, overwrite = true)
+                        callback.onProgress("📦 Extracting server binary...")
+                        extractXzFile(tempFile).also { tempFile.delete() }
+                    }
+                    isGzFile -> {
+                        callback.onProgress("📦 Processing compressed file (.gz)...")
+                        val tempFile = File(fridaDir, "temp-server.gz")
+                        sourceFile.copyTo(tempFile, overwrite = true)
+                        callback.onProgress("📦 Extracting server binary...")
+                        extractGzFile(tempFile).also { tempFile.delete() }
+                    }
+                    else -> {
+                        callback.onProgress("📁 Processing raw binary file...")
+                        val target = File(fridaDir, "frida-server")
+                        target.delete()
+                        sourceFile.copyTo(target, overwrite = true)
+                        target
+                    }
                 }
                 
                 callback.onProgress("✅ File processing completed")
@@ -577,16 +589,28 @@ class FridaInstaller(private val context: Context) {
                     callback.onError("Frida server not found. Please install it first.")
                     return@Thread
                 }
-                
+
                 callback.onProgress("🛑 Stopping any existing Frida server...")
                 stopFridaServer()
-                
+
+                // Copy to /data/local/tmp — SELinux blocks exec from app private storage
+                callback.onProgress("📋 Staging binary to /data/local/tmp...")
+                val tmpPath = "/data/local/tmp/frida-server"
+                val stageProcess = Runtime.getRuntime().exec("su")
+                stageProcess.outputStream.apply {
+                    write("cp ${serverFile.absolutePath} $tmpPath\n".toByteArray())
+                    write("chmod 755 $tmpPath\n".toByteArray())
+                    write("exit\n".toByteArray())
+                    flush()
+                }
+                stageProcess.waitFor()
+
                 callback.onProgress("🚀 Starting Frida server: $currentServerType")
                 callback.onProgress("📡 Server will listen on 0.0.0.0:$port")
                 callback.onProgress("📝 Real-time output will be shown below:")
-                
+
                 fridaServerProcess = Runtime.getRuntime().exec("su")
-                val command = "cd /data/local/tmp && ${serverFile.absolutePath} -l 0.0.0.0:$port\n"
+                val command = "$tmpPath -l 0.0.0.0:$port\n"
                 fridaServerProcess?.outputStream?.apply {
                     write(command.toByteArray())
                     flush()
