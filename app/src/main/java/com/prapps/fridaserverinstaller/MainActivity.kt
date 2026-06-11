@@ -87,10 +87,6 @@ fun MainApp(
                 )
             }
             
-            composable(NavigationItem.Detection.route) {
-                DetectionScreen()
-            }
-            
             composable(NavigationItem.Logs.route) {
                 LogsScreen(
                     messages = uiState.messages,

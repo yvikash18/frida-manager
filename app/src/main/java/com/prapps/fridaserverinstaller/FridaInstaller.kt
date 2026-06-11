@@ -19,6 +19,7 @@ class FridaInstaller(private val context: Context) {
         private const val TAG = "FridaInstaller"
         private const val GITHUB_API_URL = "https://api.github.com/repos/frida/frida/releases/latest"
         private const val GITHUB_ALL_RELEASES_URL = "https://api.github.com/repos/frida/frida/releases"
+        private const val PHANTOM_ALL_RELEASES_URL = "https://api.github.com/repos/FernanApps/phantom-frida/releases"
     }
     
     data class FridaRelease(
@@ -26,9 +27,13 @@ class FridaInstaller(private val context: Context) {
         val name: String,
         val publishedAt: String,
         val prerelease: Boolean,
-        val assets: JsonArray
+        val assets: JsonArray,
+        val isPhantom: Boolean = false
     ) {
-        fun getDisplayName(): String = tagName + if (prerelease) " (Pre-release)" else ""
+        fun getDisplayName(): String {
+            val label = if (isPhantom) "Phantom $tagName" else tagName
+            return label + if (prerelease) " (Pre-release)" else ""
+        }
     }
     
     interface InstallCallback {
@@ -194,14 +199,17 @@ class FridaInstaller(private val context: Context) {
                 callback.onProgress("✅ Download completed: ${downloadedFile.name}")
                 
                 callback.onProgress("📦 Extracting server binary...")
-                val extractedFile = extractXzFile(downloadedFile)
+                val extractedFile = if (release.isPhantom)
+                    extractGzFile(downloadedFile)
+                else
+                    extractXzFile(downloadedFile)
                 if (extractedFile == null) {
                     callback.onProgress("❌ Extraction failed")
                     callback.onError("Failed to extract server binary")
                     return@Thread
                 }
                 callback.onProgress("✅ Extraction completed")
-                
+
                 callback.onProgress("🔧 Setting executable permissions...")
                 if (!setExecutablePermissions(extractedFile)) {
                     callback.onProgress("❌ Permission setting failed")
@@ -209,10 +217,11 @@ class FridaInstaller(private val context: Context) {
                     return@Thread
                 }
                 callback.onProgress("✅ Executable permissions set successfully")
-                
-                saveServerInfo(release.tagName, arch)
+
+                val label = if (release.isPhantom) "Phantom Frida ${release.tagName}" else release.tagName
+                saveServerInfo(label, arch)
                 loadCurrentServerType()
-                callback.onSuccess("Frida server ${release.tagName} installed successfully!")
+                callback.onSuccess("$label installed successfully!")
                 
             } catch (e: Exception) {
                 Log.e(TAG, "Installation failed", e)
@@ -414,9 +423,44 @@ class FridaInstaller(private val context: Context) {
     }
     
     private fun hasAndroidAssets(assets: JsonArray): Boolean {
-        return assets.any { 
+        return assets.any {
             val name = it.asJsonObject.get("name").asString
             name.contains("android") && name.contains("frida-server")
+        }
+    }
+
+    fun getAllPhantomReleases(callback: ReleasesCallback) {
+        Thread {
+            try {
+                val releases = fetchAllPhantomReleases()
+                callback.onReleasesLoaded(releases)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch phantom releases", e)
+                callback.onError("Failed to fetch Phantom Frida releases: ${e.message}")
+            }
+        }.start()
+    }
+
+    private fun fetchAllPhantomReleases(): List<FridaRelease> {
+        val request = Request.Builder().url("$PHANTOM_ALL_RELEASES_URL?per_page=20").build()
+        return httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Failed to fetch releases: ${response.code}")
+            val releasesArray = gson.fromJson(response.body?.string(), JsonArray::class.java)
+            releasesArray.mapNotNull { element ->
+                val obj = element.asJsonObject
+                val assets = obj.getAsJsonArray("assets")
+                if (assets.any { it.asJsonObject.get("name").asString.contains("android") }) {
+                    FridaRelease(
+                        tagName = obj.get("tag_name").asString,
+                        name = obj.get("name")?.takeIf { !it.isJsonNull }?.asString
+                            ?: obj.get("tag_name").asString,
+                        publishedAt = obj.get("published_at").asString,
+                        prerelease = obj.get("prerelease").asBoolean,
+                        assets = assets,
+                        isPhantom = true
+                    )
+                } else null
+            }
         }
     }
     
@@ -430,9 +474,15 @@ class FridaInstaller(private val context: Context) {
     }
     
     private fun findServerAssetInRelease(release: FridaRelease, arch: String): String? {
-        val expectedName = "frida-server-${release.tagName}-android-$arch.xz"
-        return release.assets.firstOrNull { it.asJsonObject.get("name").asString == expectedName }
-            ?.asJsonObject?.get("browser_download_url")?.asString
+        return if (release.isPhantom) {
+            val expectedName = "ajeossida-server-${release.tagName}-android-$arch.gz"
+            release.assets.firstOrNull { it.asJsonObject.get("name").asString == expectedName }
+                ?.asJsonObject?.get("browser_download_url")?.asString
+        } else {
+            val expectedName = "frida-server-${release.tagName}-android-$arch.xz"
+            release.assets.firstOrNull { it.asJsonObject.get("name").asString == expectedName }
+                ?.asJsonObject?.get("browser_download_url")?.asString
+        }
     }
     
     private fun downloadAssetWithProgress(url: String, callback: InstallCallback): File? {
@@ -465,6 +515,24 @@ class FridaInstaller(private val context: Context) {
         }
     }
     
+    private fun extractGzFile(gzFile: File): File? {
+        val outputFile = File(getFridaInternalDir(), "frida-server")
+        outputFile.delete()
+        return try {
+            java.io.FileInputStream(gzFile).use { fis ->
+                java.util.zip.GZIPInputStream(fis).use { gzis ->
+                    FileOutputStream(outputFile).use { fos ->
+                        gzis.copyTo(fos)
+                    }
+                }
+            }
+            outputFile
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to extract GZ file", e)
+            null
+        }
+    }
+
     private fun extractXzFile(xzFile: File): File? {
         val outputFile = File(getFridaInternalDir(), "frida-server")
         outputFile.delete()

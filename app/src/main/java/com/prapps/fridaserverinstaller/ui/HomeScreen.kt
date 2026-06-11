@@ -28,7 +28,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import com.prapps.fridaserverinstaller.rasp.DetectionResult
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -96,14 +95,25 @@ fun HomeScreen(
     if (uiState.showInstallTypeDialog) {
         InstallTypeDialog(
             onDownload = { viewModel.downloadAndInstall() },
-            onSelectFile = { 
+            onDownloadPhantom = { viewModel.downloadAndInstallPhantom() },
+            onSelectFile = {
                 viewModel.dismissInstallTypeDialog()
                 filePickerLauncher.launch("*/*")
             },
             onDismiss = { viewModel.dismissInstallTypeDialog() }
         )
     }
-    
+
+    if (uiState.showPhantomVersionSelectionDialog) {
+        VersionSelectionDialog(
+            isLoading = uiState.isLoadingPhantomReleases,
+            releases = uiState.availablePhantomReleases,
+            savedVersions = emptyList(),
+            onVersionSelected = { release -> viewModel.installPhantomFromSelectedVersion(release) },
+            onDismiss = { viewModel.dismissPhantomVersionSelectionDialog() }
+        )
+    }
+
     if (uiState.showVersionSelectionDialog) {
         VersionSelectionDialog(
             isLoading = uiState.isLoadingReleases,
@@ -558,6 +568,7 @@ fun RedownloadDialog(
 @Composable
 fun InstallTypeDialog(
     onDownload: () -> Unit,
+    onDownloadPhantom: () -> Unit,
     onSelectFile: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -565,25 +576,35 @@ fun InstallTypeDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
         titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = { Text("Install Method") },
-        text = { Text("How would you like to install Frida server?") },
-        confirmButton = {
-            Button(
-                onClick = onDownload,
-                colors = ButtonDefaults.buttonColors(containerColor = ElectricViolet)
-            ) {
-                Text("Download from GitHub")
-            }
-        },
-        dismissButton = {
-            Row {
-                TextButton(onClick = onSelectFile) {
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = onDownload,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = ElectricViolet)
+                ) {
+                    Text("Download Frida (Official)")
+                }
+                Button(
+                    onClick = onDownloadPhantom,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = CyberCyan.copy(alpha = 0.85f))
+                ) {
+                    Text("Download Phantom Frida", color = TextWhite)
+                }
+                OutlinedButton(
+                    onClick = onSelectFile,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text("Select Local File", color = CyberCyan)
                 }
-                TextButton(onClick = onDismiss) {
-                    Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     )

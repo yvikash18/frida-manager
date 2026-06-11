@@ -18,9 +18,9 @@
 
 ## 🔥 Overview
 
-**Frida Manager** is a cutting-edge Android application designed for security researchers, pentesters, and modders. It streamlines the deployment of Frida server binaries and provides a robust **RASP (Runtime Application Self-Protection) Detection** suite to analyze how apps detect your environment.
+**Frida Manager** is a cutting-edge Android application designed for security researchers, pentesters, and modders. It streamlines the deployment of Frida server binaries directly from your device.
 
-With a beautiful **Material Design 3** interface, it offers powerful tools like **Wireless ADB Debugging**, real-time logging, and one-click environment scans.
+With a beautiful **Material Design 3** interface, it offers powerful tools like **Wireless ADB Debugging**, real-time logging, and seamless version management.
 
 ## ✨ Key Features
 
@@ -29,14 +29,6 @@ With a beautiful **Material Design 3** interface, it offers powerful tools like 
 - **Version Control**: Save multiple Frida versions and switch between them instantly.
 - **Auto-Heal**: Automatically detects architecture and installs the correct binary.
 - **Boot Persistence**: Configure Frida server to start automatically on device boot.
-
-### 🛡️ RASP & Environment Analysis
-Detect if your environment is exposed to anti-tampering checks. Our native detection module scans for:
-- 🕵️ **Maps & Smaps Scanning**: Detects Frida libraries and anonymous executable memory.
-- 🧵 **Thread Analysis**: Identifies suspicious threads (`gmain`, `gum-js-loop`, `pool-frida`).
-- 📂 **File Descriptor Checks**: Finds open handles to sensitive files.
-- 🔌 **Port Scanning**: Detects default Frida ports (27042).
-- 🧬 **Native Hooks**: Probes for hooked system libraries.
 
 ### ⚡ Power Tools
 - **Wifi ADB Debugging**: Toggle Wireless ADB with a single tap for cable-free research.
@@ -54,12 +46,11 @@ Detect if your environment is exposed to anti-tampering checks. Our native detec
 
 <div align="center">
   <img src="Screenshot/1.png" width="30%" alt="Home Screen Dashboard" style="border-radius: 8px; margin: 5px;" />
-  <img src="Screenshot/2.png" width="30%" alt="RASP Detection Results" style="border-radius: 8px; margin: 5px;" />
-  <img src="Screenshot/3.png" width="30%" alt="Log Viewer" style="border-radius: 8px; margin: 5px;" />
+  <img src="Screenshot/2.png" width="30%" alt="Log Viewer" style="border-radius: 8px; margin: 5px;" />
+  <img src="Screenshot/3.png" width="30%" alt="Settings and Config" style="border-radius: 8px; margin: 5px;" />
 </div>
 <div align="center">
-  <img src="Screenshot/4.png" width="30%" alt="Settings and Config" style="border-radius: 8px; margin: 5px;" />
-  <img src="Screenshot/5.png" width="30%" alt="Dark Mode" style="border-radius: 8px; margin: 5px;" />
+  <img src="Screenshot/4.png" width="30%" alt="Dark Mode" style="border-radius: 8px; margin: 5px;" />
 </div>
 
 ---

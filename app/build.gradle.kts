@@ -29,9 +29,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
-        }
     }
 
     signingConfigs {
@@ -81,6 +78,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {
@@ -89,12 +87,6 @@ android {
         }
     }
     
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
 }
 
 dependencies {

@@ -1,5 +1,6 @@
 package com.prapps.fridaserverinstaller.ui
 
+import com.prapps.fridaserverinstaller.BuildConfig
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -314,7 +315,7 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Version 1.0",
+                text = "Version ${BuildConfig.VERSION_NAME}",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

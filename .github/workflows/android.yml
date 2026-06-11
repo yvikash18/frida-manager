@@ -27,7 +27,6 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
-      # Extra caching (often faster than only setup-java cache)
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
@@ -57,32 +56,20 @@ jobs:
             --configuration-cache \
             --parallel
 
+      # ── Versioned release (tag push: v*) ──────────────────────────────────
       - name: Get version from tag
         if: startsWith(github.ref, 'refs/tags/v')
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-      - name: Rename Release APK (tag builds)
+      - name: Rename APK for versioned release
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
           APK_DIR="app/build/outputs/apk/release"
-          DEFAULT_APK="$APK_DIR/app-release.apk"
-          OUT_APK="$APK_DIR/frida-manager-${{ steps.get_version.outputs.VERSION }}.apk"
-          if [ -f "$DEFAULT_APK" ]; then
-            mv "$DEFAULT_APK" "$OUT_APK"
-          else
-            FOUND_APK=$(ls -1 $APK_DIR/*.apk | head -n 1)
-            mv "$FOUND_APK" "$OUT_APK"
-          fi
+          SRC=$(ls -1 $APK_DIR/*.apk | head -n 1)
+          mv "$SRC" "$APK_DIR/frida-manager-${{ steps.get_version.outputs.VERSION }}.apk"
 
-      - name: Upload Release APK artifact (branches/PR)
-        if: "!startsWith(github.ref, 'refs/tags/v')"
-        uses: actions/upload-artifact@v4
-        with:
-          name: frida-manager-release
-          path: app/build/outputs/apk/release/*.apk
-
-      - name: Create GitHub Release (tags)
+      - name: Create versioned GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: ncipollo/release-action@v1
         with:
@@ -97,3 +84,34 @@ jobs:
 
             ### 📥 Downloads
             Download the APK below.
+
+      # ── Rolling latest release (branch push, not a tag) ───────────────────
+      - name: Rename APK for rolling release
+        if: "!startsWith(github.ref, 'refs/tags/') && github.event_name == 'push'"
+        run: |
+          APK_DIR="app/build/outputs/apk/release"
+          SRC=$(ls -1 $APK_DIR/*.apk | head -n 1)
+          mv "$SRC" "$APK_DIR/frida-manager-latest.apk"
+
+      - name: Update rolling latest release
+        if: "!startsWith(github.ref, 'refs/tags/') && github.event_name == 'push'"
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "app/build/outputs/apk/release/frida-manager-latest.apk"
+          tag: latest
+          name: "Latest Build"
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          makeLatest: false
+          prerelease: true
+          body: |
+            **Automated build from the latest commit on `${{ github.ref_name }}`.**
+
+            | Field | Value |
+            |---|---|
+            | Commit | [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) |
+            | Message | ${{ github.event.head_commit.message }} |
+            | Built at | ${{ github.event.head_commit.timestamp }} |
+
+            > This is a rolling pre-release. It is overwritten on every push. For stable builds, see the [versioned releases](${{ github.server_url }}/${{ github.repository }}/releases).

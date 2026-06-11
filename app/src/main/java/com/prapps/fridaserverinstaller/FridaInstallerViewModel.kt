@@ -26,6 +26,9 @@ data class InstallUiState(
     val showVersionSelectionDialog: Boolean = false,
     val availableReleases: List<FridaInstaller.FridaRelease> = emptyList(),
     val isLoadingReleases: Boolean = false,
+    val showPhantomVersionSelectionDialog: Boolean = false,
+    val availablePhantomReleases: List<FridaInstaller.FridaRelease> = emptyList(),
+    val isLoadingPhantomReleases: Boolean = false,
     val serverPid: String? = null,
     val serverPort: Int = 27042,
     val isAutoStartEnabled: Boolean = false,
@@ -34,8 +37,7 @@ data class InstallUiState(
     val isWifiAdbEnabled: Boolean = false,
     val wifiAdbAddress: String? = null,
 
-    val isRooted: Boolean = false,
-    val raspResults: com.prapps.fridaserverinstaller.rasp.DetectionSummary? = null
+    val isRooted: Boolean = false
 )
 
 class FridaInstallerViewModel(private val context: Context) : ViewModel() {
@@ -49,26 +51,7 @@ class FridaInstallerViewModel(private val context: Context) : ViewModel() {
         checkRootStatus()
         checkExistingInstallation()
         checkWifiAdbStatus()
-        checkWifiAdbStatus()
         loadPreferences()
-        runRaspScan()
-    }
-    
-    fun runRaspScan() {
-        // Run in background properly, but for now just direct call if simple
-        // Ideally inside viewModelScope.launch(Dispatchers.IO)
-        // Assuming Detector is lightweight enough or already threaded?
-        // Actually native scans can block. Let's assume we need a thread/coroutine.
-        // Since I don't see coroutines setup fully here (it's StateFlow), I'll check imports.
-        // It has `kotlinx.coroutines.flow`. 
-        // I'll add a simple thread for now or look if `viewModelScope` is available.
-        // `androidx.lifecycle.ViewModel` usually has it.
-        // But imports are minimal. I'll just use a Thread for safety to not block UI.
-        Thread {
-            val raspDetector = com.prapps.fridaserverinstaller.rasp.RaspDetector()
-            val results = raspDetector.runFullScan()
-            _uiState.value = _uiState.value.copy(raspResults = results)
-        }.start()
     }
     
     private fun loadPreferences() {
@@ -279,6 +262,48 @@ class FridaInstallerViewModel(private val context: Context) : ViewModel() {
     
     fun dismissVersionSelectionDialog() {
         _uiState.value = _uiState.value.copy(showVersionSelectionDialog = false)
+    }
+
+    fun downloadAndInstallPhantom() {
+        _uiState.value = _uiState.value.copy(
+            showInstallTypeDialog = false,
+            showPhantomVersionSelectionDialog = true,
+            isLoadingPhantomReleases = true
+        )
+        fridaInstaller.getAllPhantomReleases(object : FridaInstaller.ReleasesCallback {
+            override fun onReleasesLoaded(releases: List<FridaInstaller.FridaRelease>) {
+                _uiState.value = _uiState.value.copy(
+                    availablePhantomReleases = releases,
+                    isLoadingPhantomReleases = false
+                )
+            }
+            override fun onError(error: String) {
+                val msgs = _uiState.value.messages.toMutableList()
+                msgs.add("ERROR: $error")
+                _uiState.value = _uiState.value.copy(
+                    isLoadingPhantomReleases = false,
+                    showPhantomVersionSelectionDialog = false,
+                    status = InstallStatus.ERROR,
+                    messages = msgs
+                )
+            }
+        })
+    }
+
+    fun dismissPhantomVersionSelectionDialog() {
+        _uiState.value = _uiState.value.copy(showPhantomVersionSelectionDialog = false)
+    }
+
+    fun installPhantomFromSelectedVersion(release: FridaInstaller.FridaRelease) {
+        _uiState.value = _uiState.value.copy(
+            status = InstallStatus.INSTALLING,
+            messages = emptyList(),
+            downloadProgress = 0,
+            downloadedBytes = 0,
+            totalBytes = 0,
+            showPhantomVersionSelectionDialog = false
+        )
+        fridaInstaller.installFridaServerFromRelease(release, createInstallCallback(), true)
     }
     
     fun showVersionSelector() {
