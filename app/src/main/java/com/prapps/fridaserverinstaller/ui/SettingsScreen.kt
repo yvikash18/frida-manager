@@ -1,6 +1,6 @@
 package com.prapps.fridaserverinstaller.ui
 
-import com.prapps.fridaserverinstaller.BuildConfig
+import com.fridamanager.android.BuildConfig
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
